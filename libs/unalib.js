@@ -114,8 +114,11 @@ module.exports = {
       
       // Lista de dominios permitidos para imágenes y videos
       var allowedDomains = [
+        // YouTube
         'youtube.com',
         'youtu.be',
+        
+        // Imagenes populares
         'imgur.com',
         'i.imgur.com',
         'giphy.com',
@@ -130,6 +133,16 @@ module.exports = {
         'images.pexels.com',
         'flickr.com',
         'staticflickr.com',
+        'freesvg.org',
+        'openclipart.org',
+        'wikimedia.org',
+        'commons.wikimedia.org',
+        'deviantart.com',
+        'deviantart.net',
+        'artstation.com',
+        'dribbble.com',
+        
+        // CDNs y almacenamiento
         'amazonaws.com',
         'cloudfront.net',
         'googleusercontent.com',
@@ -141,7 +154,43 @@ module.exports = {
         'dropboxusercontent.com',
         'drive.google.com',
         'docs.google.com',
-        'storage.googleapis.com'
+        'storage.googleapis.com',
+        's3.amazonaws.com',
+        'cdn.jsdelivr.net',
+        'unpkg.com',
+        
+        // Redes sociales (solo para contenido público)
+        'instagram.com',
+        'cdninstagram.com',
+        'twitter.com',
+        'pbs.twimg.com',
+        'twimg.com',
+        
+        // Otros sitios populares
+        'reddit.com',
+        'i.redd.it',
+        'preview.redd.it',
+        'vimeo.com',
+        'player.vimeo.com',
+        'dailymotion.com',
+        'streamable.com',
+        'gfycat.com',
+        'thumbs.gfycat.com',
+        'media.gfycat.com',
+        
+        // Sitios de noticias y contenido
+        'bbc.com',
+        'cdn.bbc.com',
+        'cnn.com',
+        'cdn.cnn.com',
+        'nytimes.com',
+        'static01.nyt.com',
+        
+        // Sitios educativos
+        'wikipedia.org',
+        'upload.wikimedia.org',
+        'khanacademy.org',
+        'cdn.kastatic.org'
       ];
       
       try {
@@ -162,14 +211,15 @@ module.exports = {
     },
 
     is_valid_url_image: function (url) {
-      // Validaciones de seguridad
-      if (!this.isValidSecureUrl(url) || !this.isAllowedDomain(url)) {
+      // Validaciones de seguridad - solo verificar que sea una URL segura, no el dominio
+      if (!this.isValidSecureUrl(url)) {
         return false;
       }
       
       // inicializacion lazy
       var isValid = false;
       // expresion regular mejorada para imagenes con validación estricta
+      // Permite cualquier dominio para imágenes
       var re = /^https?:\/\/([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\/.*\.(jpg|jpeg|png|gif|bmp|webp|svg)(\?[a-zA-Z0-9=&%-_]*)?$/i;
   
       // validacion Regex
