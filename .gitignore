@@ -1,0 +1,55 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.envrc
+
+# Build output
+dist/
+build/
+coverage/
+tmp/
+temp/
+out/
+
+# Logs
+logs/
+*.log
+*.csv
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+.history/
+.idea/
+
+# Test & reports
+coverage/
+.nyc_output/
+jest-html-reporters-*
+reports/
+test-results/
+
+# Misc
+*.swp
+*.swo
+*.bak
+*.orig
+*.rej
+*.pid
+*.seed
+*.tgz
+
+# Snyk / security
+.snyk
