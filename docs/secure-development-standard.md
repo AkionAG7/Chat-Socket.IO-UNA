@@ -43,8 +43,6 @@ Asegurar que todo el equipo mantenga un **nivel constante de calidad y seguridad
 - ❌ **Nunca incluir secretos reales** en prompts.  
 - Si se agregan nuevas dependencias sugeridas por IA, **evaluar el riesgo** (ver matriz).
 
-> 🧠 *Cita el prompt o fuente en el PR si la IA contribuyó al cambio.*
-
 ---
 
 ## 💻 Convenciones de código

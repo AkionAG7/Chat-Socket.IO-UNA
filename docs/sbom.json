@@ -1,0 +1,96 @@
+{
+  "name": "Chat-Socket.IO-UNA",
+  "version": "1.0.0",
+  "description": "Chat en tiempo real usando Socket.IO con validaciones de seguridad",
+  "fecha_generacion": "2025-10-16",
+  "components": [
+    {
+      "name": "express",
+      "version": "*",
+      "version_actual": "4.18.2",
+      "type": "framework",
+      "license": "MIT",
+      "descripcion": "Framework web minimalista para Node.js",
+      "risk": {
+        "probabilidad": 2,
+        "impacto": 4,
+        "riesgo_inherente": 8,
+        "evaluacion": "No Aceptable",
+        "recomendacion": "Especificar versión fija (ej: ^4.18.2) en lugar de '*' para evitar actualizaciones automáticas que puedan romper compatibilidad"
+      }
+    },
+    {
+      "name": "socket.io",
+      "version": "*",
+      "version_actual": "4.7.4",
+      "type": "librería",
+      "license": "MIT",
+      "descripcion": "Biblioteca para comunicación en tiempo real bidireccional",
+      "risk": {
+        "probabilidad": 2,
+        "impacto": 4,
+        "riesgo_inherente": 8,
+        "evaluacion": "No Aceptable",
+        "recomendacion": "Especificar versión fija (ej: ^4.7.4) en lugar de '*' para control de versiones y seguridad"
+      }
+    },
+    {
+      "name": "mocha",
+      "version": "^10.2.0",
+      "type": "framework",
+      "license": "MIT",
+      "descripcion": "Framework de testing para JavaScript",
+      "categoria": "devDependency",
+      "risk": {
+        "probabilidad": 1,
+        "impacto": 2,
+        "riesgo_inherente": 2,
+        "evaluacion": "Aceptable",
+        "recomendacion": ""
+      }
+    }
+  ],
+  "dependencias_internas": [
+    {
+      "name": "unalib",
+      "version": "1.0.0",
+      "type": "módulo",
+      "license": "Propietaria",
+      "descripcion": "Librería interna con validaciones de seguridad y sanitización",
+      "ubicacion": "./libs/unalib.js",
+      "risk": {
+        "probabilidad": 1,
+        "impacto": 1,
+        "riesgo_inherente": 1,
+        "evaluacion": "Aceptable",
+        "recomendacion": ""
+      }
+    }
+  ],
+  "runtime": {
+    "name": "Node.js",
+    "version_minima": "14.0.0",
+    "version_recomendada": "18.0.0+",
+    "risk": {
+      "probabilidad": 1,
+      "impacto": 3,
+      "riesgo_inherente": 3,
+      "evaluacion": "Aceptable",
+      "recomendacion": "Mantener Node.js actualizado a versiones LTS"
+    }
+  },
+  "resumen_riesgos": {
+    "total_componentes": 3,
+    "aceptables": 1,
+    "no_aceptables": 2,
+    "principales_preocupaciones": [
+      "Uso de versiones comodín (*) en dependencias críticas",
+      "Falta de control de versiones específicas para express y socket.io"
+    ],
+    "recomendaciones_generales": [
+      "Migrar de versiones '*' a versiones específicas con rangos semánticos",
+      "Implementar dependabot o renovate para actualizaciones controladas",
+      "Realizar auditorías de seguridad regulares con 'npm audit'"
+    ]
+  }
+}
