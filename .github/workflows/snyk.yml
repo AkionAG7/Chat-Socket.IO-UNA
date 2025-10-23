@@ -2,12 +2,12 @@ name: Snyk Security Scan
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [main, master, develop]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [main, master, develop]
   schedule:
     # Ejecutar escaneo semanal los lunes a las 9:00 AM UTC
-    - cron: '0 9 * * 1'
+    - cron: "0 9 * * 1"
 
 permissions:
   contents: read
@@ -17,62 +17,96 @@ permissions:
 jobs:
   snyk-security:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run Snyk to check for vulnerabilities
-      uses: snyk/actions/node@master
-      continue-on-error: true
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: --severity-threshold=high --sarif-file-output=snyk.sarif
-        
-    - name: Upload Snyk results to GitHub Code Scanning
-      uses: github/codeql-action/upload-sarif@v3
-      if: always() && hashFiles('snyk.sarif') != ''
-      with:
-        sarif_file: snyk.sarif
-        
-    - name: Comment PR with Snyk results
-      if: github.event_name == 'pull_request'
-      uses: snyk/actions/node@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: --severity-threshold=high
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Debug Snyk token and test connection
+        run: |
+          echo "🔍 Debugging Snyk token..."
+          if [ -z "$SNYK_TOKEN" ]; then
+            echo "❌ SNYK_TOKEN is not set"
+            exit 1
+          else
+            echo "✅ SNYK_TOKEN is set (length: ${#SNYK_TOKEN})"
+            echo "Token starts with: ${SNYK_TOKEN:0:10}..."
+          fi
+
+          echo "🔍 Testing Snyk connection..."
+          npx snyk auth --token=$SNYK_TOKEN
+          echo "✅ Snyk authentication successful"
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --sarif-file-output=snyk.sarif
+
+      - name: Upload Snyk results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('snyk.sarif') != ''
+        with:
+          sarif_file: snyk.sarif
+
+      - name: Comment PR with Snyk results
+        if: github.event_name == 'pull_request'
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
 
   snyk-monitor:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Monitor project with Snyk
-      uses: snyk/actions/node@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: --severity-threshold=high
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Debug Snyk token and test connection
+        run: |
+          echo "🔍 Debugging Snyk token..."
+          if [ -z "$SNYK_TOKEN" ]; then
+            echo "❌ SNYK_TOKEN is not set"
+            exit 1
+          else
+            echo "✅ SNYK_TOKEN is set (length: ${#SNYK_TOKEN})"
+            echo "Token starts with: ${SNYK_TOKEN:0:10}..."
+          fi
+
+          echo "🔍 Testing Snyk connection..."
+          npx snyk auth --token=$SNYK_TOKEN
+          echo "✅ Snyk authentication successful"
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Monitor project with Snyk
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
