@@ -9,6 +9,11 @@ on:
     # Ejecutar escaneo semanal los lunes a las 9:00 AM UTC
     - cron: '0 9 * * 1'
 
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
 jobs:
   snyk-security:
     runs-on: ubuntu-latest
@@ -32,11 +37,11 @@ jobs:
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        args: --severity-threshold=high
+        args: --severity-threshold=high --sarif-file-output=snyk.sarif
         
     - name: Upload Snyk results to GitHub Code Scanning
       uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      if: always() && hashFiles('snyk.sarif') != ''
       with:
         sarif_file: snyk.sarif
         
@@ -46,7 +51,7 @@ jobs:
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        args: --severity-threshold=high --pr-comment
+        args: --severity-threshold=high
 
   snyk-monitor:
     runs-on: ubuntu-latest
