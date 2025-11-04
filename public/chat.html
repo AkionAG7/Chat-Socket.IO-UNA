@@ -1,0 +1,182 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Chat Socket.IO UNA</title>
+    <style>
+      :root{
+       --bg: #f6f7fb;
+       --card: #ffffff;
+       --text: #1f2937;
+       --muted:#6b7280;
+       --border:#e5e7eb;
+       --accent:#0A66C2;                 
+       --accent-ghost: rgba(10,102,194,.08);
+
+        --shadow: 0 8px 24px rgba(16,24,40,.06);
+        --radius: 12px;
+        --content-max: 960px;            
+        --bubble-max: 560px;              
+     }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font: 14px "Segoe UI", Arial, system-ui, -apple-system, Roboto;
+        background: linear-gradient(180deg, #f9fafb 0%, var(--bg) 100%);
+        color: var(--text);
+        min-height: 100vh;
+        padding-top: 64px;                /* espacio para la cabecera */
+      }
+      .header{ 
+        position: fixed; 
+        top:0; 
+        left:0; 
+        right:0; 
+        display:flex; 
+        align-items:center; 
+        justify-content:space-between; 
+        padding: 10px 14px; 
+        background: var(--card); 
+        border-bottom: 1px solid var(--border); 
+        z-index: 10; } 
+      .title{ font-weight:800; letter-spacing: .2px; } 
+      .btn-back{ 
+        display:inline-flex; 
+        align-items:center; 
+        gap:8px; background: 
+        #fff; color: var(--accent); 
+        border: 1px solid var(--accent); 
+        border-radius: 10px; 
+        padding: 8px 12px; 
+        text-decoration: none; 
+        font-weight: 700; 
+        transition: background .2s ease, 
+        transform .06s ease; } 
+      .btn-back:hover{ 
+        background: var(--accent-ghost); 
+        transform: translateY(-1px); 
+      }
+      form { 
+        position: fixed; 
+        left:0; right:0; 
+        bottom:0; 
+        background: var(--card); 
+        border-top: 1px solid var(--border); 
+        padding: 10px 12px; 
+        display: grid; 
+        grid-template-columns: 150px 1fr auto; 
+        gap: 8px; }
+      form input { 
+        border:1px solid var(--border); 
+        border-radius: 10px; 
+        padding: 10px 12px; 
+        outline: none; }
+      form button { 
+        border-color: var(--accent); 
+        box-shadow: 0 0 0 3px var(--accent-ghost); } 
+      form #nombre{ min-width: 120px; } 
+      form #m{ min-width: 0; }
+      form button{ 
+        border:1px solid var(--accent); 
+        background: var(--accent); 
+        color:#fff; border-radius:10px; 
+        padding: 10px 16px; 
+        cursor: pointer; 
+        font-weight: 700; 
+        transition: transform .06s ease, 
+        filter .2s ease; }
+      form button:hover { transform: translateY(-2px); filter: brightness(.95);}
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 10px; margin: 5px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+      #messages li:nth-child(odd) { background: #f8f9fa; }
+      #messages { margin-bottom: 60px; padding: 10px; }
+      #nombre, #m { display: inline-block;}
+      #m {width: 69%; margin-right: 4px;}
+      #nombre {width: 20%}
+      
+      /* Estilos para contenido multimedia */
+      #messages img {
+        display: block;
+        margin: 10px 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      
+      #messages iframe, #messages video {
+        display: block;
+        margin: 10px 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      
+      .url-hint {
+        font-size: 11px;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      @media (max-width: 680px){ 
+        form{ grid-template-columns: 1fr; } 
+        .url-hint{ display:none; } }
+    </style>
+  </head>
+  <body>
+    <header class="header"> 
+      <div class="title">Chat Socket.IO · UNA</div> 
+      <a class="btn-back" href="/" aria-label="Volver al menú">← Menú</a> 
+    </header>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="nombre" autocomplete="off" placeholder="Username"/>
+      <input id="m" autocomplete="off" placeholder="Escribe un mensaje o pega una URL de imagen/video" />
+      <button>Send</button>
+    </form>
+    <div class="url-hint" style="position: fixed; bottom: 60px; left: 10px; right: 10px; text-align: center;">
+      💡 Puedes compartir imágenes (jpg, png, gif, etc.) y videos (YouTube, mp4, etc.) pegando la URL
+    </div>
+    
+    <script src="https://cdn.socket.io/4.7.2/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+
+    var colorHexTxt = "";
+
+    // genera colores aleatorios en hexadeximal
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+     }
+
+      $(function () {
+        var socket = io();
+
+        // emite evento al servidor
+        $('form').submit(function(){
+            var nombreTxt = $('#nombre').val() || "Anonimo";
+            var mensajeTxt = $('#m').val();
+
+            if (!mensajeTxt.trim()) {
+                return false; // No enviar mensajes vacíos
+            }
+
+            if (colorHexTxt == "") {
+                colorHexTxt = getRandomColor();
+            }
+
+            var jsonMsg = { nombre: nombreTxt, mensaje: mensajeTxt, color: colorHexTxt };
+            socket.emit('Evento-Mensaje-Server', JSON.stringify(jsonMsg));
+            $('#m').val('');
+            return false;
+        });
+
+        socket.on('Evento-Mensaje-Server', function(msg){
+            var msgJson = JSON.parse(msg);
+            var mensajeDisplay = "<b style='color:"+ msgJson.color +"'>" + msgJson.nombre + "</b>: " + msgJson.mensaje;
+            $('#messages').append($('<li>').html(mensajeDisplay));
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+      });
+    </script>
+  </body>
+</html>
