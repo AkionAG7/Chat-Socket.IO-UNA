@@ -27,3 +27,18 @@ io.on('connection', function(socket){
 http.listen(port, function(){
   console.log('listening on *:' + port);
 });
+
+// Hub de entrada
+app.get('/', function(req, res){
+  res.sendFile(__dirname + '/index.html');
+});
+
+// Calculadora
+app.get('/calculadora', function(req, res){
+  res.sendFile(__dirname + '/public/calculadora.html');
+});
+
+// Chat
+app.get('/chat', function(req, res){
+  res.sendFile(__dirname + '/public/chat.html');
+});
