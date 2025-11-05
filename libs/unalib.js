@@ -6,8 +6,8 @@ module.exports = {
     is_valid_phone: function (phone) {
       // inicializacion lazy
       var isValid = false;
-      // expresion regular copiada de StackOverflow
-      var re = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/i;
+      // Quite el escape innecesario "\." dentro de la clase de caracteres
+      var re =  /^[+]?[(]?\d{1,4}[)]?[-\s./\d]*$/i;
   
       // validacion Regex
       try {
@@ -15,7 +15,7 @@ module.exports = {
       } catch (e) {
         console.log(e);
       } finally {
-          return isValid;
+         isValid;
       }
       // fin del try-catch block
     },
@@ -205,7 +205,8 @@ module.exports = {
         }
         
         return false;
-      } catch (e) {
+      } catch (err) {
+        console.error('isAllowedDomain error:', err);
         return false;
       }
     },
@@ -228,7 +229,7 @@ module.exports = {
       } catch (e) {
         console.log('Error validating image URL:', e);
       } finally {
-          return isValid;
+           isValid;
       }
       // fin del try-catch block
     },
@@ -250,7 +251,7 @@ module.exports = {
       } catch (e) {
         console.log('Error validating video URL:', e);
       } finally {
-          return isValid;
+          isValid;
       }
       // fin del try-catch block
     },
@@ -272,7 +273,7 @@ module.exports = {
       } catch (e) {
         console.log('Error validating YouTube URL:', e);
       } finally {
-          return isValid;
+          isValid;
       }
       // fin del try-catch block
     },
