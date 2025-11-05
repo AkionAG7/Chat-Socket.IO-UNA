@@ -12,10 +12,12 @@
   "devDependencies": {
     "@eslint/js": "^9.38.0",
     "chai": "^4.3.10",
+    "cypress": "^15.6.0",
     "eslint": "^9.38.0",
     "globals": "^16.4.0",
     "jsdom": "^24.0.0",
-    "mocha": "^10.8.2"
+    "mocha": "^10.8.2",
+    "wait-on": "^9.0.1"
   },
   "overrides": {
     "ws": "8.17.1"
