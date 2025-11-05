@@ -1,0 +1,15 @@
+id: nuclei-canary-chat-una
+info:
+  name: Canary header/body presence
+  severity: low
+  tags: canary
+requests:
+  - method: GET
+    path:
+      - "{{BaseURL}}/security/canary"
+    matchers:
+      - type: word
+        words: ["NUCLEI_CANARY_OK"]
+      - type: word
+        part: header
+        words: ["X-NUCLEI-CANARY: true"]
