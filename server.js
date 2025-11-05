@@ -1,17 +1,28 @@
 
 // npm install para descargar los paquetes...
 
-// libreriuas
-var validation = require('./libs/unalib');
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-var port = process.env.PORT || 3000;
+// Carga variables de entorno (.env)
+require('dotenv').config();
 
-// root: presentar html
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
-});
+
+// libreriuas
+const validation = require('./libs/unalib');
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const port = process.env.PORT || 3000;
+const { auth, requiresAuth } = require('express-openid-connect'); 
+
+const authConfig = {
+  authRequired: false,                 
+  auth0Logout: true,                   
+  secret: process.env.AUTH0_SECRET,    
+  baseURL: process.env.BASE_URL,      
+  clientID: process.env.AUTH0_CLIENT_ID,
+  issuerBaseURL: process.env.AUTH0_ISSUER_URL
+};
+app.use(auth(authConfig));
+
 
 // escuchar una conexion por socket
 io.on('connection', function(socket){
@@ -24,21 +35,21 @@ io.on('connection', function(socket){
   });
 });
 
-http.listen(port, function(){
-  console.log('listening on *:' + port);
+http.listen(port, () =>{
+  console.log(`listening on ${process.env.BASE_URL}`);
 });
 
-// Hub de entrada
-app.get('/', function(req, res){
+// home 
+app.get('/home', requiresAuth(), function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
 // Calculadora
-app.get('/calculadora', function(req, res){
+app.get('/calculadora', requiresAuth(), function(req, res){
   res.sendFile(__dirname + '/public/calculadora.html');
 });
 
 // Chat
-app.get('/chat', function(req, res){
+app.get('/chat', requiresAuth(), function(req, res){
   res.sendFile(__dirname + '/public/chat.html');
 });
