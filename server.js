@@ -1,44 +1,59 @@
+// Dependencias
+const path = require('path');
+const validation = require('./libs/unalib');
+const express = require('express');
 
-// npm install para descargar los paquetes...
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
-// libreriuas
-var validation = require('./libs/unalib');
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-var port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-// root: presentar html
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
-});
+// ---- Middlewares ----
+// Servir archivos estáticos desde /public (css, js, imgs, html)
+app.use(express.static(path.join(__dirname, 'public')));
 
-// escuchar una conexion por socket
-io.on('connection', function(socket){
-  // si se escucha "chat message"
-  socket.on('Evento-Mensaje-Server', function(msg){
-
-    msg =  validation.validateMessage(msg);
-    // volvemos a emitir el mismo mensaje
-    io.emit('Evento-Mensaje-Server', msg);
-  });
-});
-
-http.listen(port, function(){
-  console.log('listening on *:' + port);
-});
-
-// Hub de entrada
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
+// ---- Rutas HTTP ----
+// Página raíz
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Calculadora
-app.get('/calculadora', function(req, res){
-  res.sendFile(__dirname + '/public/calculadora.html');
+app.get('/calculadora', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'calculadora.html'));
 });
 
 // Chat
-app.get('/chat', function(req, res){
-  res.sendFile(__dirname + '/public/chat.html');
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'chat.html'));
+});
+
+// Healthcheck (para Docker HEALTHCHECK)
+app.get('/health', (req, res) => res.status(200).send('ok'));
+
+// ---- Socket.IO ----
+io.on('connection', (socket) => {
+  console.log('Cliente conectado:', socket.id);
+
+  // Evento de mensaje
+  socket.on('Evento-Mensaje-Server', (msg) => {
+    const safeMsg = validation.validateMessage(msg);
+    io.emit('Evento-Mensaje-Server', safeMsg);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Cliente desconectado:', socket.id);
+  });
+});
+
+// ---- Arranque del servidor ----
+// MUY IMPORTANTE: 0.0.0.0 para que funcione dentro del contenedor
+http.listen(PORT, '0.0.0.0', () => {
+  console.log(`listening on http://0.0.0.0:${PORT}`);
+});
+
+// Healthcheck: usado por Docker/Orquestadores
+app.get('/health', (req, res) => {
+  res.status(200).send('ok');
 });

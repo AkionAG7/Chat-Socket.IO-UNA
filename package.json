@@ -1,18 +1,25 @@
 {
   "dependencies": {
     "express": "*",
-    "mocha": "^10.2.0",
     "socket.io": "*"
   },
   "scripts": {
     "start": "node server.js",
     "test": "mocha",
     "lint": "eslint . --ext .js --fix",
-    "lint:ci": "eslint . --ext .js --max-warnings=0"
+    "lint:ci": "eslint . --ext .js --max-warnings=0",
+    "build:image": "docker build -t chat-una:dev .",
+    "scan:image": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/grype:latest --fail-on high chat-una:dev",
+    "scan:image:fixed": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/grype:latest --only-fixed --fail-on high chat-una:dev",
+    "scan:image:sarif": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/grype:latest -o sarif --fail-on high chat-una:dev > grype.sarif"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
     "eslint": "^9.38.0",
-    "globals": "^16.4.0"
+    "globals": "^16.4.0",
+    "mocha": "^10.8.2"
+  },
+  "overrides": {
+    "cross-spawn": "7.0.5"
   }
 }
