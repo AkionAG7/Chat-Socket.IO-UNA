@@ -53,3 +53,9 @@ app.get('/calculadora', requiresAuth(), function(req, res){
 app.get('/chat', requiresAuth(), function(req, res){
   res.sendFile(__dirname + '/public/chat.html');
 });
+
+app.get('/health', (req, res) => res.send('ok'));
+// Healthcheck: usado por Docker/Orquestadores
+app.get('/health', (req, res) => {
+  res.status(200).send('ok');
+});
