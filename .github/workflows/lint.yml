@@ -1,13 +1,16 @@
 name: Linting with ESLint
 
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_run:
+    workflows: ["Ejecutar Pruebas Unitarias"]
+    types:
+      - completed
 
 jobs:
   lint:
     runs-on: ubuntu-latest
+    # Solo ejecutar si el workflow de test fue exitoso
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout code
