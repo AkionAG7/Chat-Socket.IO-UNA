@@ -27,3 +27,113 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint:ci # Falla si hay errores o warnings
+
+      # ========== VALIDACIONES DE ESTÁNDARES DE DESARROLLO SEGURO ==========
+      
+      - name: Verificar nomenclatura de archivos (kebab-case)
+        run: |
+          echo "🔍 Verificando nomenclatura de archivos..."
+          # Buscar archivos JS/TS que no estén en kebab-case (excluyendo node_modules, .git, etc.)
+          FILES=$(find . -type f \( -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" \) \
+            ! -path "*/node_modules/*" \
+            ! -path "*/.git/*" \
+            ! -path "*/dist/*" \
+            ! -path "*/build/*" \
+            ! -name "*.min.js" \
+            | grep -E "[A-Z]|_" | grep -v "node_modules" || true)
+          
+          if [ -n "$FILES" ]; then
+            echo "❌ Archivos encontrados que no siguen kebab-case:"
+            echo "$FILES"
+            echo ""
+            echo "📝 Los archivos deben seguir la convención kebab-case (ej: mi-archivo.js)"
+            exit 1
+          else
+            echo "✅ Todos los archivos siguen la convención kebab-case"
+          fi
+
+      - name: Verificar que existe .env.example
+        run: |
+          echo "🔍 Verificando existencia de .env.example..."
+          if [ ! -f ".env.example" ]; then
+            echo "⚠️  Advertencia: No se encontró .env.example"
+            echo "📝 Se recomienda crear un archivo .env.example con las variables de entorno necesarias (sin valores sensibles)"
+            # No falla, solo advierte
+          else
+            echo "✅ .env.example encontrado"
+          fi
+
+      - name: Verificar que .env no está en el repositorio
+        run: |
+          echo "🔍 Verificando que .env no está en el repositorio..."
+          if git ls-files | grep -q "\.env$"; then
+            echo "❌ ERROR: Archivo .env encontrado en el repositorio"
+            echo "📝 Los archivos .env NO deben estar en el repositorio por seguridad"
+            echo "💡 Asegúrate de que .env está en .gitignore"
+            exit 1
+          else
+            echo "✅ .env no está en el repositorio"
+          fi
+
+      - name: Detectar secretos potenciales (grep básico)
+        run: |
+          echo "🔍 Buscando secretos potenciales en el código..."
+          # Buscar patrones comunes de secretos (passwords, tokens, keys)
+          # Excluir node_modules, .git, dist, build, y archivos de configuración conocidos
+          SECRETS=$(grep -r -i -E "(password|token|secret|api_key|apikey|private_key|access_key)\s*[=:]\s*['\"][^'\"]+" \
+            --include="*.js" \
+            --include="*.ts" \
+            --include="*.jsx" \
+            --include="*.tsx" \
+            --exclude-dir=node_modules \
+            --exclude-dir=.git \
+            --exclude-dir=dist \
+            --exclude-dir=build \
+            --exclude-dir=.github \
+            . 2>/dev/null | grep -v "\.env.example" | grep -v "test" || true)
+          
+          if [ -n "$SECRETS" ]; then
+            echo "❌ Posibles secretos encontrados en el código:"
+            echo "$SECRETS"
+            echo ""
+            echo "🔒 Los secretos deben estar en variables de entorno (.env) y NUNCA en el código"
+            echo "📝 Si estos son valores de ejemplo, usa .env.example en su lugar"
+            exit 1
+          else
+            echo "✅ No se encontraron secretos potenciales en el código"
+          fi
+
+      - name: Verificar estructura BDD en pruebas
+        run: |
+          echo "🔍 Verificando estructura BDD en pruebas..."
+          # Verificar que los archivos de prueba usan describe/it (mocha)
+          TEST_FILES=$(find test -name "*.test.js" -o -name "*.spec.js" 2>/dev/null || true)
+          if [ -z "$TEST_FILES" ]; then
+            echo "⚠️  No se encontraron archivos de prueba en la carpeta test/"
+            # No falla, solo advierte
+          else
+            echo "✅ Archivos de prueba encontrados:"
+            echo "$TEST_FILES" | head -5
+            # Verificar que usan describe/it (estructura básica de BDD)
+            BDD_CHECK=$(grep -r "describe\|it\|test" test/ --include="*.js" 2>/dev/null | wc -l || echo "0")
+            if [ "$BDD_CHECK" -eq "0" ]; then
+              echo "⚠️  Advertencia: Las pruebas deberían usar describe/it para seguir BDD"
+            else
+              echo "✅ Estructura BDD detectada en pruebas"
+            fi
+          fi
+
+      - name: Verificar build (si existe script build)
+        run: |
+          echo "🔍 Verificando si existe script de build..."
+          if npm run | grep -q "build"; then
+            echo "✅ Script de build encontrado, ejecutando..."
+            npm run build || {
+              echo "❌ El build falló"
+              echo "📝 Según los estándares, el build debe compilar sin errores"
+              exit 1
+            }
+            echo "✅ Build exitoso"
+          else
+            echo "ℹ️  No se encontró script de build, omitiendo..."
+          fi
