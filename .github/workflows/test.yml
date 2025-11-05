@@ -7,8 +7,8 @@ on:
     branches: [main, master, develop, Feats_Akion]
 
 jobs:
-  test:
-    name: Ejecutar Pruebas
+  Ejecutar-Pruebas:
+    name: Ejecutar Pruebas Unitarias
     runs-on: ubuntu-latest
 
     steps:
