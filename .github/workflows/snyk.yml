@@ -19,6 +19,7 @@ permissions:
 
 jobs:
   snyk-security:
+    name: Snyk Security Scan
     runs-on: ubuntu-latest
     # Solo ejecutar si viene de schedule (independiente), pull_request directo, o si el workflow de lint fue exitoso
     if: ${{ github.event_name == 'schedule' || github.event_name == 'pull_request' || github.event.workflow_run.conclusion == 'success' }}

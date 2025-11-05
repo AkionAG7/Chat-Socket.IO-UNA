@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   lint:
+    name: Linting with ESLint
     runs-on: ubuntu-latest
     # Solo ejecutar si viene de pull_request directo o si el workflow de test fue exitoso
     if: ${{ github.event_name == 'pull_request' || github.event.workflow_run.conclusion == 'success' }}
