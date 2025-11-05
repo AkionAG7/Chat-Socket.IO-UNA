@@ -10,11 +10,12 @@
     "test": "mocha",
     "lint": "eslint . --ext .js --fix",
     "lint:ci": "eslint . --ext .js --max-warnings=0",
+    "build": "echo \"No hay paso de compilación: OK\"",
     "build:image": "docker build -t chat-una:dev .",
+    "run:container": "docker run --rm -p 3000:3000 chat-una:dev",
     "scan:image": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/grype:latest --fail-on high chat-una:dev",
     "scan:image:fixed": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/grype:latest --only-fixed --fail-on high chat-una:dev",
     "scan:image:sarif": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/grype:latest -o sarif --fail-on high chat-una:dev > grype.sarif"
-
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
