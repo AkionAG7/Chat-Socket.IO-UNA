@@ -2,6 +2,8 @@
 name: Linting with ESLint
 
 on:
+  pull_request:
+    branches: [main, master, develop, Feats_Akion]
   workflow_run:
     workflows: ["Ejecutar Pruebas Unitarias"]
     types:
@@ -10,12 +12,25 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    # Solo ejecutar si el workflow de test fue exitoso
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Solo ejecutar si viene de pull_request directo o si el workflow de test fue exitoso
+    if: ${{ github.event_name == 'pull_request' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Necesario para verificar el estado del workflow anterior
+
+      # Si se ejecuta por pull_request, esperar a que test complete
+      - name: Esperar a que test complete (si es pull_request)
+        if: github.event_name == 'pull_request'
+        uses: lewis6991/wait@v1
+        with:
+          check-name: 'Ejecutar Pruebas Unitarias'
+          check-repo: ${{ github.repository }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          wait-interval: 10
+          allowed-conclusions: success
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
