@@ -173,6 +173,24 @@ function setupRoutes() {
         }
     });
 
+    // API para obtener información del usuario autenticado
+    app.get('/api/user', requiresAuth(), function(req, res) {
+        try {
+            const user = {
+                name: req.oidc.user.name || req.oidc.user.nickname || 'Usuario',
+                email: req.oidc.user.email || 'No disponible',
+                picture: req.oidc.user.picture,
+                sub: req.oidc.user.sub
+            };
+            
+            console.log('✅ Información de usuario solicitada:', user.email);
+            res.json(user);
+        } catch (error) {
+            console.error('❌ Error obteniendo información del usuario:', error);
+            res.status(500).json({ error: 'Error obteniendo información del usuario' });
+        }
+    });
+
     // API para obtener riesgos con logging
     app.get('/api/risks', requiresAuth(), async function(req, res){
         console.log('🔍 === GET /api/risks INICIADO ===');
