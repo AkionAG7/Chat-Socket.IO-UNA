@@ -28,7 +28,7 @@ jobs:
     needs: [deploy]
     runs-on: ubuntu-latest
     env:
-      TARGET_URL: ${{ secrets.DEPLOY_URL }}
+      TARGET_URL: https://chat-socket-io-una.onrender.com
     steps:
       - uses: actions/checkout@v4
 
