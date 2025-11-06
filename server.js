@@ -323,7 +323,7 @@ async function startServer() {
         
         server.listen(port, function(){
             // Obtener la BASE-URL real desde la configuración Auth0 (que viene de Azure Key Vault)
-            const baseUrl = auth0Config ? auth0Config.baseURL : `https://chat-socket-io-una.onrender.com:${port}`;
+            const baseUrl = auth0Config ? auth0Config.baseURL : `https://chat-socket-io-una.onrender.com`;
             
             console.log('');
             console.log('🚀 Servidor corriendo en puerto:', port);
