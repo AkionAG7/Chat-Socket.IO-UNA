@@ -1,0 +1,27 @@
+id: chat-una-ci
+rate-limit: 50
+bulk-size: 50
+retries: 2
+timeout: 10
+stats: true
+no-color: true
+silent: false
+
+output: nuclei-report.txt
+
+severity:
+  - medium
+  - high
+  - critical
+
+tags:
+  - cve
+  - misconfig
+  - exposure
+  - default-login
+  - panel
+  - waf
+
+exclude-tags:
+  - dos
+  - brute-force
