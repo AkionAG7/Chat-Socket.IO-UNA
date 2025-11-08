@@ -65,7 +65,7 @@ class SupabaseClient {
      */
     parsePostgresUrl(url) {
         try {
-            // postgresql://postgres:password@db.projectid.supabase.co:5432/postgres
+            
             const regex = /postgresql:\/\/postgres:(.+)@db\.(.+)\.supabase\.co:5432\/postgres/;
             const match = url.match(regex);
             

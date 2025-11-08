@@ -1,8 +1,6 @@
-// libs/azure-keyvault.js
-// Módulo para conectar con Azure Key Vault y obtener secretos
 
 const { SecretClient } = require('@azure/keyvault-secrets');
-const { DefaultAzureCredential, ClientSecretCredential } = require('@azure/identity');
+const { DefaultAzureCredential } = require('@azure/identity');
 
 class AzureKeyVaultClient {
     constructor() {
@@ -24,26 +22,9 @@ class AzureKeyVaultClient {
      */
     async initialize() {
         try {
-            // Estrategia 1: Desarrollo local - usar DefaultAzureCredential (az login)
-            if (!process.env.AZURE_CLIENT_ID && !process.env.AZURE_CLIENT_SECRET && !process.env.AZURE_TENANT_ID) {
-                console.log('[Azure KeyVault] 🏠 Modo DESARROLLO: Usando DefaultAzureCredential (az login)');
-                console.log('[Azure KeyVault] ✅ CUMPLE 100% requisitos profesor: Zero variables .env');
-                this.credential = new DefaultAzureCredential();
-            } 
-            // Estrategia 2: Producción - usar Service Principal (solo si están todas las variables)
-            else if (process.env.AZURE_CLIENT_ID && process.env.AZURE_CLIENT_SECRET && process.env.AZURE_TENANT_ID) {
-                console.log('[Azure KeyVault] 🌐 Modo PRODUCCIÓN: Usando Service Principal');
-                console.log('[Azure KeyVault] ⚠️  Nota: Usa variables de entorno (técnicamente no cumple requisito profesor)');
-                this.credential = new ClientSecretCredential(
-                    process.env.AZURE_TENANT_ID,
-                    process.env.AZURE_CLIENT_ID,
-                    process.env.AZURE_CLIENT_SECRET
-                );
-            }
-            // Estrategia 3: Error - configuración incompleta
-            else {
-                throw new Error('Configuración incompleta: Faltan algunas variables de Azure Service Principal');
-            }
+            // Estrategia ÚNICA: DefaultAzureCredential (az login) 
+            
+            this.credential = new DefaultAzureCredential();
             
             // Crear cliente con la credencial apropiada
             this.client = new SecretClient(this.vaultUrl, this.credential);
